@@ -10,7 +10,7 @@ Next, it perform agglomerative hierarchical clustering in two steps- contiguous 
 #include<stdlib.h>
 #include<time.h>
 #include<stddef.h>
-#include <errno.h>
+#include<errno.h>
 
 #define ITMAX 100
 #define EPS 3.0e-7
@@ -22,24 +22,23 @@ double entropy2 (double *freq_oligos, double);
 int segmentation (int *hash,int parent_start, int parent_end);
 float gammp(float , float );
 float gammln(float xx);
-int * build_n_nucleotide_array(int n_nucs, char * genome, int genome_length);
+int * build_n_nucleotide_array(int n_nucs, char * genome, int genome_length, float flen_alphabet);
 
 //Global variables
 extern int errno;
 int errnum;
 int hash[15000000], m=2, nm,all_kmer, count_of_hash, sg1=1, sg2, final_s1_start[900000], final_s1_end[900000], s2j=0,s2_start[900000], s2_end[900000],l=0,k1, allkmer1, dof,mmk,fgs=0,verb;
 double thres, thres1, thres3;
+char alphabet[6]="ATCGN";
 
 
 
 
-
-int * build_n_nucleotide_array(int n_nucs, char * genome, int length)
+int * build_n_nucleotide_array(int n_nucs, char * genome, int length, float flen_alphabet)
 {
   // m = m=markov model order, 2, nm is that plus 1
   // we are using a second order markov model, so 2+1 -> we are looking at trinucleotides
   //locals:
-  char alphabet[6]="ATCGN";
   char *dna=malloc(100*sizeof(char));
   int i,j, id, nuc, sum, expo;
   //Convert DNA sequence to a numeric sequence and store in int array
@@ -47,7 +46,7 @@ int * build_n_nucleotide_array(int n_nucs, char * genome, int length)
 
 
   for(i=0; i<length-n_nucs;i++){ // for each index of the genome
-    sum = 0;                  // track the sum of the nucleotide-to-int values
+    sum = 0; // track the sum of the nucleotide-to-int values
     strncpy(dna, genome+i,n_nucs); // get the trinucleotide starting with our index
     for(j=0;j<n_nucs;j++){ // for each nucleotide in trinuc, convert to numveric
       // num=pow(10, n); // this always evaluates to 0, cause n is declared but  undefined
@@ -55,24 +54,20 @@ int * build_n_nucleotide_array(int n_nucs, char * genome, int length)
       for (nuc=0; nuc<6; nuc++){
        if (dna[j]==alphabet[nuc]){id=nuc;};
       };
-      /* else if (dna[j]=='T'){id=1;} */
-      /* else if (dna[j]=='C'){id=2;} */
-      /* else if (dna[j]=='G'){id=3;} */
-      /* else if (dna[j]=='N'){id=4;} */
       expo=n_nucs-j-1; //
-      sum = sum + (id * pow(4.0,expo));
+      sum = sum + (id * pow(flen_alphabet, expo));
     }
     hash[i+1] = sum+1; //add the numeric value of the trinucleotide to the hash list
     count_of_hash+=1; // increment the length of the hash list
   }
   free(dna);
 
-  /* return hash; */
 }
 
 
 int main(int argc, char **argv)
 {
+  float flen_alphabet=strlen(alphabet)*1.0;
 //Get thresholds
 thres=atof(argv[2]);//Default segmentation threshold=0.8
 thres1=atof(argv[3]);//Default contiguous clustering threshold=0.99999
@@ -108,11 +103,12 @@ genome_length=strlen(string);
 
 //m=markov model order, 2.
  nm=m+1;  // we are using a second order markov model, so 2+1 -> we are looking at trinucleotides
-all_kmer=pow(4.0,nm);
+all_kmer=pow(flen_alphabet,nm);
 allkmer1=all_kmer+1;
-dof=(pow(4.0,m))*3;
+ dof=(pow(flen_alphabet,m))*3;  //presumably degrees of freedom?
 mmk=(4*4*(pow(4,m))-1);
-build_n_nucleotide_array(nm, string, genome_length);
+ build_n_nucleotide_array(nm, string, genome_length, flen_alphabet);
+
 if (verb==1) {printf("\nGenome length is %d\n", genome_length);}
 if (verb==1) {printf("\nStarting segmentation...\nThis may take some time\n");}
 
@@ -876,7 +872,7 @@ return 0;
 /******************************************************************************************segmentation starts******************************************************************************************/
 
 int segmentation (int *hash,int parent_start, int parent_end){
-//printf ("Thresholds are %.15lf %.15lf %.15lf\n", thres, thres1, thres3);
+  if (verb==1){printf ("Thresholds are %.15lf %.15lf %.15lf\n", thres, thres1, thres3);}
 int i=0,j=0,k,q,count=0, count1=0, length,  p2length,  seg_coord=0, seg_coord1, s1_start,  s1_end, s2start,s2end,   p1length=0, inter,  newparentstart,newparentend, k2, pae2,pas2,length1,temp;
 double ent, ent1, ent2, pi1, pi2,  n=0, maxi=-999999999.0, invlen1;
 double a, b, c, d, beta, neff, arg, sx, smax, sarg;
