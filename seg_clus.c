@@ -872,7 +872,8 @@ return 0;
 /******************************************************************************************segmentation starts******************************************************************************************/
 
 int segmentation (int *hash,int parent_start, int parent_end){
-  if (verb==1){printf ("Thresholds are %.15lf %.15lf %.15lf\n", thres, thres1, thres3);}
+  if (verb==1){printf("Thresholds are %.15lf %.15lf %.15lf\n", thres, thres1, thres3);}
+
 int i=0,j=0,k,q,count=0, count1=0, length,  p2length,  seg_coord=0, seg_coord1, s1_start,  s1_end, s2start,s2end,   p1length=0, inter,  newparentstart,newparentend, k2, pae2,pas2,length1,temp;
 double ent, ent1, ent2, pi1, pi2,  n=0, maxi=-999999999.0, invlen1;
 double a, b, c, d, beta, neff, arg, sx, smax, sarg;
@@ -881,14 +882,14 @@ double distance1;
 int *freq=malloc(256*sizeof(int));
 int *freq1=malloc(256*sizeof(int));
 int *freq2=malloc(256*sizeof(int));
-//Initialize frequency arrays
+if (verb==1){printf("Initialize frequency arrays\n");}
 
 for(i=1;i<allkmer1;i++){
 			freq[i]=0;
 			freq1[i]=0;
   		       }
 
-//determine intervals for calculating divergence measure
+ if (verb==1){printf("determine intervals for calculating divergence measure\n");}
 length= parent_end-parent_start+1;
 inter=length/10000;
 
@@ -903,6 +904,8 @@ p1length=newparentstart-pas2;
 p2length=length-p1length-4;
 length1=p1length+p2length;
 invlen1=(double)1/(length1);
+
+if (verb==1){printf ("counting n nucleotide frequencies\n");}
 
 for(k=newparentstart;k<newparentend;k+=inter){
 	for(i=1;i<allkmer1;i++){
@@ -961,6 +964,7 @@ neff=(a*log(length)) + b;
 sarg=(log(2.0)*beta*length*maxi);
 sx=gammp(dof/2,sarg);
 smax=pow(sx,neff);
+if (verb==1){printf ("determining significance\n");}
 
 //-------------------------------------------------------if significant------------------------------------------------
 //Continue segmentation
