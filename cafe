@@ -383,12 +383,15 @@ if ($phylo==1){
 #If user has defined thresholds
 
 if (defined ($seg) && defined ($clus1) && defined ($clus2)){
-	system("./seg_clus $name\_CAFE_1 $seg $clus1 $clus2 $verb");
+    print "running: ./seg_clus $name\_CAFE_1 $seg $clus1 $clus2 $verb" if ($verb==1);
+
+    system("./seg_clus $name\_CAFE_1 $seg $clus1 $clus2 $verb");
 }
 
 #Default thresholds
 
 else {
+    print "running: ./seg_clus $name\_CAFE_1 0.8 0.99999 0.999 $verb" if ($verb==1);
 
 	system("./seg_clus $name\_CAFE_1 0.8 0.99999 0.999 $verb");
 }

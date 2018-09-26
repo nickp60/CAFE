@@ -22,6 +22,7 @@ double entropy2 (double *freq_oligos, double);
 int segmentation (int *hash,int parent_start, int parent_end);
 float gammp(float , float );
 float gammln(float xx);
+int * build_n_nucleotide_array(int n_nucs, char * genome, int genome_length);
 
 //Global variables
 extern int errno;
@@ -29,6 +30,45 @@ int errnum;
 int hash[15000000], m=2, nm,all_kmer, count_of_hash, sg1=1, sg2, final_s1_start[900000], final_s1_end[900000], s2j=0,s2_start[900000], s2_end[900000],l=0,k1, allkmer1, dof,mmk,fgs=0,verb;
 double thres, thres1, thres3;
 
+
+
+
+
+int * build_n_nucleotide_array(int n_nucs, char * genome, int length)
+{
+  // m = m=markov model order, 2, nm is that plus 1
+  // we are using a second order markov model, so 2+1 -> we are looking at trinucleotides
+  //locals:
+  char alphabet[6]="ATCGN";
+  char *dna=malloc(100*sizeof(char));
+  int i,j, id, nuc, sum, expo;
+  //Convert DNA sequence to a numeric sequence and store in int array
+  //m=markov model order, 2. This converts all trinucleotides to numbers 1-64. DNA is now represented by numbers 1-64, each representing a rinucleotide
+
+
+  for(i=0; i<length-n_nucs;i++){ // for each index of the genome
+    sum = 0;                  // track the sum of the nucleotide-to-int values
+    strncpy(dna, genome+i,n_nucs); // get the trinucleotide starting with our index
+    for(j=0;j<n_nucs;j++){ // for each nucleotide in trinuc, convert to numveric
+      // num=pow(10, n); // this always evaluates to 0, cause n is declared but  undefined
+      id=0;
+      for (nuc=0; nuc<6; nuc++){
+       if (dna[j]==alphabet[nuc]){id=nuc;};
+      };
+      /* else if (dna[j]=='T'){id=1;} */
+      /* else if (dna[j]=='C'){id=2;} */
+      /* else if (dna[j]=='G'){id=3;} */
+      /* else if (dna[j]=='N'){id=4;} */
+      expo=n_nucs-j-1; //
+      sum = sum + (id * pow(4.0,expo));
+    }
+    hash[i+1] = sum+1; //add the numeric value of the trinucleotide to the hash list
+    count_of_hash+=1; // increment the length of the hash list
+  }
+  free(dna);
+
+  /* return hash; */
+}
 
 
 int main(int argc, char **argv)
@@ -40,9 +80,9 @@ thres3=atof(argv[4]);//Default non-contiguous clusterin threshold=0.999
 //printf ("%lf %lf %lf\n", thres, thres1, thres3);
 verb=atoi(argv[5]);
 
-int i, j, id,sum, length,k=0,exp,  num,n, count=0,   c=0, q=0, count1=0, ascend,strlength=0 ;
+int i, j, id,sum, genome_length,k=0,exp,  num,n, count=0,   c=0, q=0, count1=0, ascend;
 char *string=malloc(15000000*sizeof(char));
-char *dna=malloc(100*sizeof(char));
+/* char *dna=malloc(100*sizeof(char)); */
 double ent;
 
 //Check if input file provided
@@ -63,41 +103,27 @@ else{
 
 fgets (string, 15000000, input);
 fclose(input);
-length=strlen(string);
+genome_length=strlen(string);
 
-//Convert DNA sequence to a numeric sequence and store in int array
-//m=markov model order, 2. This converts all trinucleotides to numbers 1-64. DNA is now represented by numbers 1-64, each representing a rinucleotide
-nm=m+1;
+
+//m=markov model order, 2.
+ nm=m+1;  // we are using a second order markov model, so 2+1 -> we are looking at trinucleotides
 all_kmer=pow(4.0,nm);
 allkmer1=all_kmer+1;
 dof=(pow(4.0,m))*3;
 mmk=(4*4*(pow(4,m))-1);
-
-
-for(i=0; i<length-nm;i++){
-sum = 0;
-	strncpy(dna, string+i,nm);
-	for(j=0;j<nm;j++){
-		num=pow(10, n);
-                if (dna[j]=='A'){id=0;}
-	        else if (dna[j]=='T'){id=1;}
-	        else if (dna[j]=='C'){id=2;}
-	        else if (dna[j]=='G'){id=3;}
-	        exp=nm-j-1;
-	        sum = sum + (id * pow(4.0,exp));
-                        }
-strlength+=1;
-hash[i+1] = sum+1;
-count_of_hash+=1;
-}
-strlength+=2;
-if (verb==1) {printf("\nstrlength is %d\n", strlength);}
+build_n_nucleotide_array(nm, string, genome_length);
+if (verb==1) {printf("\nGenome length is %d\n", genome_length);}
 if (verb==1) {printf("\nStarting segmentation...\nThis may take some time\n");}
-
 
 //Start segmentation
 if (verb==1) {printf ("Segment_start\tSegment_end\tDivergence\n");}
-segmentation(hash,1,strlength);
+ //for(i=0; i<10;i++){
+ //  printf ("%i\n", hash[i] );
+ //};
+ // exit(1);
+
+ segmentation(hash,1,genome_length);
 
 if (verb==1) {printf("finished segmentation!");}
 
@@ -824,7 +850,7 @@ for(i=1;i<fgs;i++){
 //fclose(output1);
 //fclose(output2);
 free(string);
-free(dna);
+/* free(dna); */
 free(part1);
 free(part2);
 free(part12);
