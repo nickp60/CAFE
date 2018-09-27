@@ -68,113 +68,114 @@ int * build_n_nucleotide_array(int n_nucs, char * genome, int length, float flen
 int main(int argc, char **argv)
 {
   float flen_alphabet=strlen(alphabet)*1.0;
-//Get thresholds
-thres=atof(argv[2]);//Default segmentation threshold=0.8
-thres1=atof(argv[3]);//Default contiguous clustering threshold=0.99999
-thres3=atof(argv[4]);//Default non-contiguous clusterin threshold=0.999
-//printf ("%lf %lf %lf\n", thres, thres1, thres3);
-verb=atoi(argv[5]);
+  //Get thresholds
+  thres=atof(argv[2]);//Default segmentation threshold=0.8
+  thres1=atof(argv[3]);//Default contiguous clustering threshold=0.99999
+  thres3=atof(argv[4]);//Default non-contiguous clusterin threshold=0.999
+  //printf ("%lf %lf %lf\n", thres, thres1, thres3);
+  verb=atoi(argv[5]);
 
-int i, j, id,sum, genome_length,k=0,exp,  num,n, count=0,   c=0, q=0, count1=0, ascend;
-char *string=malloc(15000000*sizeof(char));
-/* char *dna=malloc(100*sizeof(char)); */
-double ent;
+  int i, j, id,sum, genome_length,k=0,exp,  num,n, count=0,   c=0, q=0, count1=0, ascend;
+  char *string=malloc(15000000*sizeof(char));
+  /* char *dna=malloc(100*sizeof(char)); */
+  double ent;
 
-//Check if input file provided
-if (argc==1){fprintf(stderr,"Did you forget to include filename?\n");}
+  //Check if input file provided
+  if (argc==1){fprintf(stderr,"Did you forget to include filename?\n");}
 
-FILE *input, *noutput;
-input = fopen(argv[1], "r");
+  FILE *input, *noutput;
+  input = fopen(argv[1], "r");
 
-if (input==NULL){
-	errnum = errno;
-	//fprintf(stderr, "Value of errno: %d\n", errno);
-	//perror("Error printed by perror");
-	fprintf(stderr, "Incorrect filename: %s\n", strerror( errnum ));
-		}
+  if (input==NULL){
+    errnum = errno;
+    //fprintf(stderr, "Value of errno: %d\n", errno);
+    //perror("Error printed by perror");
+    fprintf(stderr, "Incorrect filename: %s\n", strerror( errnum ));
+    exit(1);
 
-//open the input file
-else{
+  }
 
-fgets (string, 15000000, input);
-fclose(input);
-genome_length=strlen(string);
+  //open the input file
+
+  fgets (string, 15000000, input);
+  fclose(input);
+  genome_length=strlen(string);
 
 
-//m=markov model order, 2.
- nm=m+1;  // we are using a second order markov model, so 2+1 -> we are looking at trinucleotides
-all_kmer=pow(flen_alphabet,nm);
-allkmer1=all_kmer+1;
- dof=(pow(flen_alphabet,m))*3;  //presumably degrees of freedom?
-mmk=(4*4*(pow(4,m))-1);
- build_n_nucleotide_array(nm, string, genome_length, flen_alphabet);
+  //m=markov model order, 2.
+  nm=m+1;  // we are using a second order markov model, so 2+1 -> we are looking at trinucleotides
+  all_kmer=pow(flen_alphabet,nm); // number of possilbe trinucleotides,
+  allkmer1=all_kmer+1; // number of possilbe trinucleotides, +1 for using in loops
+  dof=(pow(flen_alphabet,m))*3;  //presumably degrees of freedom?
+  mmk=(4*4*(pow(4,m))-1);  // mabe the modified mann kendal test statistic?
+  build_n_nucleotide_array(nm, string, genome_length, flen_alphabet);
 
-if (verb==1) {printf("\nGenome length is %d\n", genome_length);}
-if (verb==1) {printf("\nStarting segmentation...\nThis may take some time\n");}
+  if (verb==1) {printf("\nGenome length is %d\n", genome_length);}
+  if (verb==1) {printf("\nStarting segmentation...\nThis may take some time\n");}
 
-//Start segmentation
-if (verb==1) {printf ("Segment_start\tSegment_end\tDivergence\n");}
- //for(i=0; i<10;i++){
- //  printf ("%i\n", hash[i] );
- //};
- // exit(1);
+  //Start segmentation
+  if (verb==1) {printf ("Segment_start\tSegment_end\tDivergence\n");}
+  //for(i=0; i<10;i++){
+  //  printf ("%i\n", hash[i] );
+  //};
+  // exit(1);
 
- segmentation(hash,1,genome_length);
+  segmentation(hash,1,genome_length);
 
-if (verb==1) {printf("finished segmentation!");}
+  if (verb==1) {printf("finished segmentation!");}
 
-for(i=1;i<sg1-1;i++)
+  for(i=1;i<sg1-1;i++)
+    {
+      for (j = i + 1; j < sg1; j++)
 	{
-	for (j = i + 1; j < sg1; j++)
-		{
-		if (final_s1_start[i] > final_s1_start[j])
-			{
-			ascend =  final_s1_start[i];
-			final_s1_start[i] = final_s1_start[j];
-                	final_s1_start[j] = ascend;
-			}
+	  if (final_s1_start[i] > final_s1_start[j])
+	    {
+	      ascend =  final_s1_start[i];
+	      final_s1_start[i] = final_s1_start[j];
+	      final_s1_start[j] = ascend;
+	    }
 
-		if (final_s1_end[i] > final_s1_end[j])
-			{
-			ascend =  final_s1_end[i];
-			final_s1_end[i] = final_s1_end[j];
-		        final_s1_end[j] = ascend;
-			}
-		}
+	  if (final_s1_end[i] > final_s1_end[j])
+	    {
+	      ascend =  final_s1_end[i];
+	      final_s1_end[i] = final_s1_end[j];
+	      final_s1_end[j] = ascend;
+	    }
 	}
-//Print all segments
-/*
-FILE *output1;
-output1 = fopen("inter", "w");
-for(i=1;i<sg1;i++){
-			fprintf(output1,"from main final_sement_one%d start:%d end:%d\n",i, final_s1_start [i], final_s1_end[i]);
-		  }
-*/
-/*************************************************************************************contiguous clustering starts**************************************************************************************/
-if (verb==1) {printf("Clustering...\n");}
-if (verb==1) {printf("It is almost done now\n");}
-count=0;count1=0;
-sg1=sg1-1;
+    }
+  //Print all segments
+  /*
+    FILE *output1;
+    output1 = fopen("inter", "w");
+    for(i=1;i<sg1;i++){
+    fprintf(output1,"from main final_sement_one%d start:%d end:%d\n",i, final_s1_start [i], final_s1_end[i]);
+    }
+  */
+  /*************************************************************************************contiguous clustering starts**************************************************************************************/
+  if (verb==1) {printf("Clustering...\n");}
+  if (verb==1) {printf("It is almost done now\n");}
+  count=0;count1=0;
+  sg1=sg1-1;
 
-//Initialize variables
-int freqb [256], p2length,   s,final_groups_start[5000], final_groups_end[5000],switc=0, np2length,hcounter=1,   len=1,switcarray[5000] ;
-double enta, entb, entab, jsd, pi1, pi2, sig =0.3,p1length1, total_length, newp1l=0.0,limit=0.9999999999999;
-double a, b, c1, d, beta, neff, arg, sx, smax, sarg, smax1;
-//double thres1=0.9999999999999;
-double *freqab=malloc(256*sizeof(double));
-double *freqa=malloc(256*sizeof(double));
-double *tempafreq=malloc(256*sizeof(double));
-double *cluslen=malloc(10000*sizeof(double));
-double *hash1=malloc(100000*sizeof(double));
-double *total_cluster_length=malloc(1000*sizeof(double));
+  //Initialize variables
+  int freqb [256], p2length,   s,final_groups_start[5000], final_groups_end[5000],switc=0, np2length,hcounter=1,   len=1,switcarray[5000] ;
+  double enta, entb, entab, jsd, pi1, pi2, sig =0.3,p1length1, total_length, newp1l=0.0,limit=0.9999999999999;
+  double a, b, c1, d, beta, neff, arg, sx, smax, sarg, smax1;
+  //double thres1=0.9999999999999;
+  double *freqab=malloc(256*sizeof(double));
+  double *freqa=malloc(256*sizeof(double));
+  double *tempafreq=malloc(256*sizeof(double));
+  double *cluslen=malloc(10000*sizeof(double));
+  double *hash1=malloc(100000*sizeof(double));
+  double *total_cluster_length=malloc(1000*sizeof(double));
 
-//FILE *output2;
-//output2 = fopen("contclus", "w");
-fgs=1;
+  //FILE *output2;
+  //output2 = fopen("contclus", "w");
+  fgs=1;
 
-for (i=1;i<sg1;i++){ // for all segments
+  for (i=1;i<sg1;i++){ // for all segments
 
-        if (switc==0){ p1length1= final_s1_end [i]-final_s1_start[i]+1-3;}
+    if (switc==0){ p1length1= final_s1_end [i]-final_s1_start[i]+1-3;}
 
 	p2length=final_s1_end [i+1]-final_s1_start[i+1]-1;
 	np2length=p2length-1;
@@ -839,8 +840,8 @@ output4 = fopen("cafe_temp", "w");
 
 for(i=1;i<fgs;i++){
 
-		fprintf(output4,"%d\t%d\t%d\n",final_groups_start[i], final_groups_end[i],clusterid1[i] );
-		}
+  fprintf(output4,"%d\t%d\t%d\n",final_groups_start[i], final_groups_end[i],clusterid1[i] );
+ }
 
 /********************************************************************************************clusterid ends*********************************************************************************************/
 //fclose(output1);
@@ -862,9 +863,6 @@ free(temppart1freq);
 //fclose(output3);
 fclose(output4);
 return 0;
-
-}//else end for file open
-
 }
 
 /**********************************************************************************************end of main**********************************************************************************************/
@@ -872,130 +870,156 @@ return 0;
 /******************************************************************************************segmentation starts******************************************************************************************/
 
 int segmentation (int *hash,int parent_start, int parent_end){
+  // parent start and end are starts and end of the genome, respectiely
   if (verb==1){printf("Thresholds are %.15lf %.15lf %.15lf\n", thres, thres1, thres3);}
 
-int i=0,j=0,k,q,count=0, count1=0, length,  p2length,  seg_coord=0, seg_coord1, s1_start,  s1_end, s2start,s2end,   p1length=0, inter,  newparentstart,newparentend, k2, pae2,pas2,length1,temp;
-double ent, ent1, ent2, pi1, pi2,  n=0, maxi=-999999999.0, invlen1;
-double a, b, c, d, beta, neff, arg, sx, smax, sarg;
-double distance1;
+  int i=0,j=0,k,q,count=0, count1=0, length,  p2length,  seg_coord=0, seg_coord1, s1_start,  s1_end, s2start,s2end,   p1length=0, inter,  newparentstart,newparentend, k2, pae2,pas2,length1,temp;
+  double ent, ent1, ent2, pi1, pi2,  n=0, maxi=-999999999.0, invlen1;
+  double a, b, c, d, beta, neff, arg, sx, smax, sarg;
+  double distance1;
 
-int *freq=malloc(256*sizeof(int));
-int *freq1=malloc(256*sizeof(int));
-int *freq2=malloc(256*sizeof(int));
-if (verb==1){printf("Initialize frequency arrays\n");}
+  int *freq=malloc(256*sizeof(int));
+  int *freq1=malloc(256*sizeof(int));
+  int *freq2=malloc(256*sizeof(int));
+  if (verb==1){printf("Initialize frequency arrays\n");}
 
-for(i=1;i<allkmer1;i++){
-			freq[i]=0;
-			freq1[i]=0;
-  		       }
+  for(i=1;i<allkmer1;i++){
+    freq[i]=0;
+    freq1[i]=0;
+  }
 
- if (verb==1){printf("determine intervals for calculating divergence measure\n");}
-length= parent_end-parent_start+1;
-inter=length/10000;
+  if (verb==1){printf("determining intervals for calculating divergence measure\n");}
+  length= parent_end-parent_start+1;
+  inter=length/10000;
 
-if(inter<1){inter=1;}
+  if(inter<1){inter=1;}
+  if (verb==1){printf("mmk: %i\n", mmk);}
+  if (verb==1){printf("allkmer1: %i\n", allkmer1);}
+  if (verb==1){printf("inter: %i\n", inter);}
 
-newparentstart=parent_start+mmk;
-newparentend=parent_end-mmk;
-pas2=parent_start+1;
-pae2=parent_end-2;
-length= parent_end-parent_start+1;
-p1length=newparentstart-pas2;
-p2length=length-p1length-4;
-length1=p1length+p2length;
-invlen1=(double)1/(length1);
-
-if (verb==1){printf ("counting n nucleotide frequencies\n");}
-
-for(k=newparentstart;k<newparentend;k+=inter){
-	for(i=1;i<allkmer1;i++){
-		freq[i]=0;freq1[i]=0;
-			       }
-	//Count frequencies of trinucloetides
-	for(j=parent_start;j<k-2;j++){
-               	temp=hash[j];
-                hash[j]=temp;freq[temp]++;
-				     }
-	k2=k+1;
-	for(q=k2;q<pae2;q++){
-		temp=hash[q];freq1[temp]++;
-		            }
-
-	for(i=1;i<allkmer1;i++){
-		freq2[i]=freq[i]+freq1[i];
-			       }
-	//Calculate entropy
-	ent=-((entropy1(freq2, length1))/(log(2.0)));
-	ent1=-((entropy1(freq,p1length))/(log(2.0)));
-	ent2=-((entropy1(freq1,p2length))/(log(2.0)));
-	pi1=(double)p1length*invlen1;
-	pi2=1-pi1;
-	//Calculate divergence between the segments
-	distance1=ent-(pi1*ent1)-(pi2*ent2);
-
-	p1length+=inter;
-	p2length-=inter;
-	//Get position of maximum divergence
-	if(maxi<distance1)
-		{
-		maxi=distance1;
-		seg_coord=k;
-		}
+  newparentstart=parent_start+mmk;
+  newparentend=parent_end-mmk;
+  pas2=parent_start+1;
+  pae2=parent_end-2;
+  length= parent_end-parent_start+1;
+  p1length=newparentstart-pas2;
+  p2length=length-p1length-4;
+  length1=p1length+p2length;
+  invlen1=(double)1/(length1);
+  double *entropies=malloc(256*sizeof(int));
+  printf("p1length\tp2length\tlength\n");
+  printf("%i\t%i\t%i\n", p1length, p2length, length);
+  printf("newparentstart\tnewparentend\tinter\n");
+  printf("%i\t%i\t%i\n", newparentstart, newparentend, inter);
 
 
-					     }
-s1_start=parent_start;
-s1_end=seg_coord;
-s2start=s1_end+1;
-s2end=parent_end;
-seg_coord1=seg_coord;
-//printf("maxi %.12lf seg_coord1 %d seg_coord %d s1_start %d s1_end %d s2start %d s2end %d\n", maxi ,seg_coord1,seg_coord, s1_start, s1_end, s2start, s2end);
+  if (verb==1){printf ("counting n nucleotide frequencies\n");}
 
-//Parameters for Markov models
-if (m==2){  a=2.39; b=-7.66;c=0.0029; d=0.841;}
+  for(k=newparentstart;k<newparentend;k+=inter){ // for each total/10000 window
+    for(i=1;i<allkmer1;i++){
+      freq[i]=0;
+      freq1[i]=0;
+    }
 
-else if (m==0){  a=2.7784; b=-7.97084; c=0.0; d=0.80;	}
+    //Count frequencies of trinucloetides
+    for(j=parent_start;j<k-2;j++){
+      /* temp=hash[j]; */
+      /* hash[j]=temp; */
+      freq[hash[j]]++;
+    }
+    /* if (verb==1){printf ("update freq1\n");} */
+    /* for(i=1;i<allkmer1;i++){ */
+    /*   printf("%i\t%i\n", freq[i], freq1[i]); */
+    /* } */
+    /* exit(1); */
 
-else if (m==1){  a=2.543; b=-4.77; c=0.0; d=0.848; }
+    k2=k+1;
+    for(q=k2;q<pae2;q++){
+      freq1[hash[q]]++;
+    }
 
-//Do significance testing
-beta=(c*log(length)) + d;
-neff=(a*log(length)) + b;
-sarg=(log(2.0)*beta*length*maxi);
-sx=gammp(dof/2,sarg);
-smax=pow(sx,neff);
-if (verb==1){printf ("determining significance\n");}
+    for(i=1;i<allkmer1;i++){
+      freq2[i]=freq[i]+freq1[i];
+    }
+    /* if (verb==1){printf ("update freqs\n");} */
+    /* for(i=1;i<allkmer1;i++){ */
+    /*   printf("%i\t%i\t%i\t%i\n",i, freq[i], freq1[i], freq2[i]); */
+    /* } */
+    /* exit(1); */
+    //Calculate entropy
+    ent=-((entropy1(freq2, length1))/(log(2.0)));
+    ent1=-((entropy1(freq,p1length))/(log(2.0)));
+    ent2=-((entropy1(freq1,p2length))/(log(2.0)));
 
-//-------------------------------------------------------if significant------------------------------------------------
-//Continue segmentation
-if(smax>thres)
-	{
-	s2_start[s2j]=s2start;
-	s2_end[s2j]=s2end;
-	s2j=s2j+1;
-	segmentation(hash,s1_start, s1_end);
-	}
-//-------------------------------------------------------if not significant-------------------------------------------
-//do not segment further
+    pi1=(double)p1length*invlen1;
+    pi2=1-pi1;
+    //Calculate divergence between the segments
+    distance1=ent-(pi1*ent1)-(pi2*ent2);
 
-else{
-
-	final_s1_start [sg1]=parent_start;
-	final_s1_end [sg1]=parent_end;
-	if (verb==1) {printf ("%d\t%d\t%.12lf\n", parent_start, parent_end, distance1);}
-	sg1=sg1+1;
-	//Get next segment for segmentation
-	for(k1=l;k1<s2j;k1++){
-	   l=l+1;
-	   segmentation(hash, s2_start[k1], s2_end[k1]);
-			     }
-
-   }
+    p1length+=inter;
+    p2length-=inter;
+    //Get position of maximum divergence
+    if(maxi<distance1)
+      {
+	maxi=distance1;
+	seg_coord=k;
+      }
 
 
-free(freq);
-free(freq1);
-free(freq2);
+  }
+  if (verb==1){printf ("finished counting n nucleotide frequencies\n");}
+  s1_start=parent_start;
+  s1_end=seg_coord;
+  s2start=s1_end+1;
+  s2end=parent_end;
+  seg_coord1=seg_coord;
+  //printf("maxi %.12lf seg_coord1 %d seg_coord %d s1_start %d s1_end %d s2start %d s2end %d\n", maxi ,seg_coord1,seg_coord, s1_start, s1_end, s2start, s2end);
+
+  //Parameters for Markov models
+  if (m==2){  a=2.39; b=-7.66;c=0.0029; d=0.841;}
+
+  else if (m==0){  a=2.7784; b=-7.97084; c=0.0; d=0.80;	}
+
+  else if (m==1){  a=2.543; b=-4.77; c=0.0; d=0.848; }
+
+  //Do significance testing
+  beta=(c*log(length)) + d;
+  neff=(a*log(length)) + b;
+  sarg=(log(2.0)*beta*length*maxi);
+  sx=gammp(dof/2,sarg);
+  smax=pow(sx,neff);
+  if (verb==1){printf ("determining significance\n");}
+
+  //-------------------------------------------------------if significant------------------------------------------------
+  //Continue segmentation
+  if(smax>thres)
+    {
+      s2_start[s2j]=s2start;
+      s2_end[s2j]=s2end;
+      s2j=s2j+1;
+      segmentation(hash,s1_start, s1_end);
+    }
+  //-------------------------------------------------------if not significant-------------------------------------------
+  //do not segment further
+
+  else{
+
+    final_s1_start [sg1]=parent_start;
+    final_s1_end [sg1]=parent_end;
+    if (verb==1) {printf ("%d\t%d\t%.12lf\n", parent_start, parent_end, distance1);}
+    sg1=sg1+1;
+    //Get next segment for segmentation
+    for(k1=l;k1<s2j;k1++){
+      l=l+1;
+      segmentation(hash, s2_start[k1], s2_end[k1]);
+    }
+
+  }
+
+
+  free(freq);
+  free(freq1);
+  free(freq2);
 }
 
 /***********************************************************************************************entropy 2***********************************************************************************************/
@@ -1037,34 +1061,29 @@ free(probkmer);
 //Function to calculate entropy. Takes input as frequency array
 double entropy1 (int *freq_kmer, int length)
 {
-	int i=1,i1=1,sumkmer=0;
-	double ent=0.0, ent1=0.0,wordprob, *probkmer=malloc(256*sizeof(double));
+  int i=1,i1=1,sumkmer=0;
+  double ent=0.0, ent1=0.0,wordprob, *probkmer=malloc(256*sizeof(double));
 
-	for (i=1;i<all_kmer+1;i++)
+  for (i=1;i<all_kmer+1;i++)
+    {
+      sumkmer=(freq_kmer[i1]+freq_kmer[i1+1]+freq_kmer[i1+2]+freq_kmer[i1+3]);
+      if (sumkmer>0)
 	{
-                sumkmer=(freq_kmer[i1]+freq_kmer[i1+1]+freq_kmer[i1+2]+freq_kmer[i1+3]);
-
- 		if (sumkmer>0)
- 		{
-			probkmer[i]=(double)freq_kmer[i]/sumkmer;
-
-                     	if (probkmer[i]>0.0)
-
-				ent1=ent1+probkmer[i]*((log (probkmer[i])));
-
- 		}
-
-		if (i%4 ==0)
-			{
-			   wordprob=(double)sumkmer/length;
-			   ent+=ent1*(wordprob);
-
-			   ent1=0.0;
-			   i1=i1+4;
-			}
+	  probkmer[i]=(double)freq_kmer[i]/sumkmer;
+	  if (probkmer[i]>0.0)
+	    ent1=ent1+probkmer[i]*((log (probkmer[i])));
 	}
-free(probkmer);
-	return ent;
+      if (i%4 ==0)
+	{
+	  wordprob=(double)sumkmer/length;
+	  ent+=ent1*(wordprob);
+
+	  ent1=0.0;
+	  i1=i1+4;
+	}
+    }
+  free(probkmer);
+  return ent;
 }
 
 /*******************************************************************************************************************************************************************************************************/
