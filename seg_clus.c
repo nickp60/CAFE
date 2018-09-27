@@ -51,7 +51,7 @@ int * build_n_nucleotide_array(int n_nucs, char * genome, int length, float flen
     for(j=0;j<n_nucs;j++){ // for each nucleotide in trinuc, convert to numveric
       // num=pow(10, n); // this always evaluates to 0, cause n is declared but  undefined
       id=0;
-      for (nuc=0; nuc<6; nuc++){
+      for (nuc=0; nuc<(flen_alphabet+1); nuc++){
        if (dna[j]==alphabet[nuc]){id=nuc;};
       };
       expo=n_nucs-j-1; //
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
   //};
   // exit(1);
 
-  segmentation(hash,1,genome_length);
+  segmentation(hash,1,genome_length, flen_alphabet);
 
   if (verb==1) {printf("finished segmentation!");}
 
@@ -881,21 +881,23 @@ int segmentation (int *hash,int parent_start, int parent_end){
   int *freq=malloc(256*sizeof(int));
   int *freq1=malloc(256*sizeof(int));
   int *freq2=malloc(256*sizeof(int));
-  if (verb==1){printf("Initialize frequency arrays\n");}
+  // we dont need to do this here, we do it below
+  /* if (verb==1){printf("Initialize frequency arrays of length %d\n", allkmer1);} */
 
-  for(i=1;i<allkmer1;i++){
-    freq[i]=0;
-    freq1[i]=0;
-  }
+  /* for(i=1;i<allkmer1;i++){ */
+  /*   freq[i]=0; */
+  /*   freq1[i]=0; */
+  /*   freq2[i]=0; */
+  /* } */
 
   if (verb==1){printf("determining intervals for calculating divergence measure\n");}
   length= parent_end-parent_start+1;
   inter=length/10000;
 
   if(inter<1){inter=1;}
-  if (verb==1){printf("mmk: %i\n", mmk);}
-  if (verb==1){printf("allkmer1: %i\n", allkmer1);}
-  if (verb==1){printf("inter: %i\n", inter);}
+  /* if (verb==1){printf("mmk: %i\n", mmk);} */
+  /* if (verb==1){printf("allkmer1: %i\n", allkmer1);} */
+  /* if (verb==1){printf("inter: %i\n", inter);} */
 
   newparentstart=parent_start+mmk;
   newparentend=parent_end-mmk;
@@ -919,12 +921,15 @@ int segmentation (int *hash,int parent_start, int parent_end){
     for(i=1;i<allkmer1;i++){
       freq[i]=0;
       freq1[i]=0;
+      freq2[i]=0;
     }
 
     //Count frequencies of trinucloetides
+    // hash has the numeric version of the dna string, usually 1-128
+    // hash[j] get the value for a position in this current dna window
+    // freq[hash[j]]++ increments one of the possible trinucleotides (1-128)
+
     for(j=parent_start;j<k-2;j++){
-      /* temp=hash[j]; */
-      /* hash[j]=temp; */
       freq[hash[j]]++;
     }
     /* if (verb==1){printf ("update freq1\n");} */
@@ -932,20 +937,20 @@ int segmentation (int *hash,int parent_start, int parent_end){
     /*   printf("%i\t%i\n", freq[i], freq1[i]); */
     /* } */
     /* exit(1); */
-
     k2=k+1;
-    for(q=k2;q<pae2;q++){
+
+    for(q=k2;q<pae2;q++){ // for each spot in the reset of the qeuence
       freq1[hash[q]]++;
     }
-
+    //
     for(i=1;i<allkmer1;i++){
       freq2[i]=freq[i]+freq1[i];
     }
-    /* if (verb==1){printf ("update freqs\n");} */
+
     /* for(i=1;i<allkmer1;i++){ */
     /*   printf("%i\t%i\t%i\t%i\n",i, freq[i], freq1[i], freq2[i]); */
     /* } */
-    /* exit(1); */
+
     //Calculate entropy
     ent=-((entropy1(freq2, length1))/(log(2.0)));
     ent1=-((entropy1(freq,p1length))/(log(2.0)));
