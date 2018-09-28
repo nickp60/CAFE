@@ -2,12 +2,26 @@
 
 Composition Anomaly and Feature Enrichment (CAFE), is genomic island prediction tool that utilizes sequence composition and functional information to identify genomic islands.
 
+## Installation
+The executable file `seg_clus` is included in the repository, but if you run into issues, this file can be updated by running `make` in the root of the repository.  This requires gcc.
+
+If needed, set the permissions for the segmentation/clustering program
+```
+sudo chmod +x seg_clus
+```
+
+
+`cafe` requires bioperl, and optionally HMMER and Prodigal for annotating genomes.  These dependencies can be managed with `conda`:
+
+```
+conda create -n cafe perl-bioperl hmmer prodigal blast
+source activate cafe
+```
+
+
+
+
 ## Example
-First set the permissions for the file
-```
-sudo chmod 775 cafe
-sudo chmod 775 cafe.out
-```
 To run program on example files
 ```
 ./cafe -phylo -genus bartonella -gbk example.gbk
@@ -26,13 +40,13 @@ To use the Phylogenetic module of CAFE, first download reference protein sequenc
 ```
 ./cafe [options] -phylo -genus [genus_name] -gbk genome.gbk
 ```
-Note this requires BLAST version 2.6 or higher. Phylogenetic module also requires that users specify the name 
+Note this requires BLAST version 2.6 or higher. Phylogenetic module also requires that users specify the name
 ### Options
 --help    Print help and exit
 
 --info    Print program information and exit
 
---annot   Annotate marker genes. This option is only required if the input file is in fasta format. This option requires prodigal and Hmmer be installed and in path 
+--annot   Annotate marker genes. This option is only required if the input file is in fasta format. This option requires prodigal and Hmmer be installed and in path
 
 --Thres   Provide segmentation, contiguous clustering and non contiguous clustering thresholds (range: 0-1. eg 0.8 0.99999 0.999)
 
@@ -42,7 +56,7 @@ Note this requires BLAST version 2.6 or higher. Phylogenetic module also require
 
 --genus   Specify genus name of the input genome
 
---out     Output file name 
+--out     Output file name
 
 --verbose print on screen
 
@@ -57,5 +71,3 @@ CAFE outputs a tab separated text file. File with suffix CAFE.txt shows genomic 
 
 #### Note
 This program has been tested on 64-bit machine and is intended for use on 64-bit computers
-
-
