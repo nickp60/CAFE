@@ -7,14 +7,14 @@ Next, it perform agglomerative hierarchical clustering in two steps- contiguous 
 #include<stdio.h>
 #include<math.h>
 #include<string.h>
-#include<stdlib.h> 
+#include<stdlib.h>
 #include<time.h>
 #include<stddef.h>
 #include <errno.h>
 
 #define ITMAX 100
 #define EPS 3.0e-7
-#define FPMIN 1.0e-30 
+#define FPMIN 1.0e-30
 
 //Declare functions
 double entropy1(int *freq_oligos, int);
@@ -58,7 +58,7 @@ if (input==NULL){
 	fprintf(stderr, "Incorrect filename: %s\n", strerror( errnum ));
 		}
 
-//open the input file 
+//open the input file
 else{
 
 fgets (string, 15000000, input);
@@ -88,7 +88,7 @@ sum = 0;
                         }
 strlength+=1;
 hash[i+1] = sum+1;
-count_of_hash+=1; 
+count_of_hash+=1;
 }
 strlength+=2;
 if (verb==1) {printf("\nStarting segmentation...\nThis may take some time\n");}
@@ -120,7 +120,7 @@ for(i=1;i<sg1-1;i++)
 	}
 //Print all segments
 /*
-FILE *output1;    
+FILE *output1;
 output1 = fopen("inter", "w");
 for(i=1;i<sg1;i++){
 			fprintf(output1,"from main final_sement_one%d start:%d end:%d\n",i, final_s1_start [i], final_s1_end[i]);
@@ -135,7 +135,7 @@ sg1=sg1-1;
 //Initialize variables
 int freqb [256], p2length,   s,final_groups_start[5000], final_groups_end[5000],switc=0, np2length,hcounter=1,   len=1,switcarray[5000] ;
 double enta, entb, entab, jsd, pi1, pi2, sig =0.3,p1length1, total_length, newp1l=0.0,limit=0.9999999999999;
-double a, b, c1, d, beta, neff, arg, sx, smax, sarg, smax1; 
+double a, b, c1, d, beta, neff, arg, sx, smax, sarg, smax1;
 //double thres1=0.9999999999999;
 double *freqab=malloc(256*sizeof(double));
 double *freqa=malloc(256*sizeof(double));
@@ -144,7 +144,7 @@ double *cluslen=malloc(10000*sizeof(double));
 double *hash1=malloc(100000*sizeof(double));
 double *total_cluster_length=malloc(1000*sizeof(double));
 
-//FILE *output2;    
+//FILE *output2;
 //output2 = fopen("contclus", "w");
 fgs=1;
 
@@ -159,19 +159,19 @@ for (i=1;i<sg1;i++){ // for all segments
  	for(k=1;k<allkmer1;k++){
 
 		if (switc==0){
-		
-		//Get frequencies for segment 1  
+
+		//Get frequencies for segment 1
 		for(s=final_s1_start [i]; s< final_s1_end[i]-2; s++){
 
 			if(k==hash[s]){count=count+1;}
-                          
+
                                                                     }
 		freqa[k]=count;
 
 			       }
-		//Get frequencies for segment 2 
+		//Get frequencies for segment 2
 		for(s=final_s1_start [i+1]; s< final_s1_end[i+1]-2; s++){
-	
+
 			if(k==hash[s]){count1=count1+1;}
 		                     				 	}
 		freqb[k]=count1;
@@ -182,7 +182,7 @@ for (i=1;i<sg1;i++){ // for all segments
 		count=0;
 		count1=0;
                    	       }
-	//Calculate entropy and divergence between segments  
+	//Calculate entropy and divergence between segments
 	enta=-((entropy2(freqa,p1length1))/(log(2.0)));
 	entb=-((entropy1(freqb,p2length))/(log(2.0)));
 	entab=-((entropy2(freqab,total_length))/(log(2.0)));
@@ -193,15 +193,15 @@ for (i=1;i<sg1;i++){ // for all segments
 	//Markov model parameters
 	if (m==2){  a=2.39; b=-7.66;c1=0.0029; d=0.841;}
 
-	else if (m==0)	{  a=2.7784; b=-7.97084; c1=0.0; d=0.80;}		
-		                						
+	else if (m==0)	{  a=2.7784; b=-7.97084; c1=0.0; d=0.80;}
+
 	else if (m==1){  a=2.543; b=-4.77; c1=0.0; d=0.848; }
 
-	//Do significance testing							
+	//Do significance testing
 	beta=(c1*log(total_length)) + d;
 	neff=(a*log(total_length)) + b;
 	sarg=(log(2.0)*total_length*jsd);
-	sx=gammp(dof/2,sarg);	
+	sx=gammp(dof/2,sarg);
 	smax=sx;
 	//printf("%d %d %d %d %lf %lf %lf %lf %lf %lf %d %lf %lf %lf %.11lf %lf %lf %lf %lf %.15lf\n",final_s1_start[i],final_s1_end [i],final_s1_start[i+1],final_s1_end[i+1],entab, enta, p1length1, pi1, pi1*enta, entb,p2length,pi2, pi2*entb,total_length, jsd,beta,neff,sarg,sx,smax);
 
@@ -253,9 +253,9 @@ for (i=1;i<sg1;i++){ // for all segments
 			hcounter+=1;
 	    				}
 
-	
+
 		if(i+1==sg1){ //for last segment
-		
+
 			final_groups_start[fgs]=final_s1_start[i];
 			final_groups_end[fgs]=final_s1_end[i];
 			cluslen[len]=p1length1;
@@ -319,18 +319,18 @@ for (i=1;i<sg1;i++){
  	for(k=1;k<allkmer1;k++){
 
 		if (switc==0){
-		  
+
 		for(s=final_s1_start [i]; s< final_s1_end[i]-2; s++){
 
 			if(k==hash[s]){count=count+1;}
-                          
+
                                                                     }
 		freqa[k]=count;
 
 			       }
 
 		for(s=final_s1_start [i+1]; s< final_s1_end[i+1]-2; s++){
-	
+
 			if(k==hash[s]){count1=count1+1;}
 		                     				 	}
 		freqb[k]=count1;
@@ -338,7 +338,7 @@ for (i=1;i<sg1;i++){
 		count=0;
 		count1=0;
                    	       }
-  
+
 	enta=-((entropy2(freqa,p1length1))/(log(2.0)));
 	entb=-((entropy1(freqb,p2length))/(log(2.0)));
 	entab=-((entropy2(freqab,total_length))/(log(2.0)));
@@ -348,14 +348,14 @@ for (i=1;i<sg1;i++){
 
 	if (m==2){  a=2.39; b=-7.66;c1=0.0029; d=0.841;}
 
-	else if (m==0)	{  a=2.7784; b=-7.97084; c1=0.0; d=0.80;}		
-		                						
+	else if (m==0)	{  a=2.7784; b=-7.97084; c1=0.0; d=0.80;}
+
 	else if (m==1){  a=2.543; b=-4.77; c1=0.0; d=0.848; }
-							
+
 	beta=(c1*log(total_length)) + d;
 	neff=(a*log(total_length)) + b;
 	sarg=(log(2.0)*total_length*jsd);
-	sx=gammp(dof/2,sarg);	
+	sx=gammp(dof/2,sarg);
 	smax=sx;
 	//printf("%d %d %d %d %lf %lf %lf %lf %lf %lf %d %lf %lf %lf %.11lf %lf %lf %lf %lf %.15lf\n",final_s1_start[i],final_s1_end [i],final_s1_start[i+1],final_s1_end[i+1],entab, enta, p1length1, pi1, pi1*enta, entb,p2length,pi2, pi2*entb,total_length, jsd,beta,neff,sarg,sx,smax);
 
@@ -404,9 +404,9 @@ for (i=1;i<sg1;i++){
 			hcounter+=1;
 	    				}
 
-	
+
 		if(i+1==sg1){
-		
+
 			final_groups_start[fgs]=final_s1_start[i];
 			final_groups_end[fgs]=final_s1_end[i];
 			cluslen[len]=p1length1;
@@ -472,14 +472,14 @@ enta=0;entb=0;entab=0;p1length=0;p2length=0;np2length=0;total_length=0;firstsegm
 for(is=1;is<fgs;is++){//foreach segment-cluster
 
 	for(i=1; i<fgs-1;i++){// check if 1st segment is already clustered //is<fgs-1
-		
+
 		if(is==clusterdone[i]){
 			v+=all_kmer;
 			is+=1;
 			firstsegmentcounter+=1;
 				      }
                               }
-	
+
 	alonecluster=0;
 	vv=(is*all_kmer)-all_kmer+1;
 	v=(is*all_kmer)-all_kmer+1;
@@ -494,45 +494,45 @@ for(is=1;is<fgs;is++){//foreach segment-cluster
 		p1length=cluslen[is]/switcarray[is];
 
 		       }
-			
+
 	jj=1;
 	secondsegstart=v;
 	firstsegmentcounter+=1;
 	secondsegmentcounter=is+1;
 
-	for(q=secondsegmentcounter;q<fgs; q++){//for second segment     
+	for(q=secondsegmentcounter;q<fgs; q++){//for second segment
         	ii=1;
 		secondsegstart+=64;
 
 		if(switc2==0){
 
 			for(i=1; i<fgs+1;i++){ //compare part2
-                        				
-				if(q==clusterdone1[i]){ //check if segment already clustered                       
+
+				if(q==clusterdone1[i]){ //check if segment already clustered
                         		secondsegstart+=64;
 					q+=1;
 					  	       }
 						}
 				}
- 
+
 		else{q=tempq;}
 
 
 		if(q<fgs){
 
-			ii=1;	
+			ii=1;
 			secondsegstart=(q*all_kmer)-all_kmer+1;
 
     			for(j=secondsegstart;j<secondsegstart+64;j++){//collect segemnt 2 frequency
         			part2[ii]=hash1[j];
-        			ii+=1;		
-                        					     } 
+        			ii+=1;
+                        					     }
 
         		for(i=1;i<allkmer1;i++){//add segemnt 1 and 2 freq
            			part12[i]=part1[i]+part2[i];
                               	     		}
 
-			p2length2=cluslen[q]/switcarray[q];	   								
+			p2length2=cluslen[q]/switcarray[q];
 			np2length=p2length2-1;
 			total_length=p1length+p2length2;
 
@@ -542,24 +542,24 @@ for(is=1;is<fgs;is++){//foreach segment-cluster
 			pi1=(double)p1length/total_length;
 			pi2=(double)1-pi1;
 			jsd=entab-(pi1*enta)-(pi2*entb);
-						
+
 			if (m==2){  a=2.39; b=-7.66;c1=0.0029; d=0.841;}
 
-			else if (m==0){  a=2.7784; b=-7.97084; c1=0.0; d=0.80;}		
-												
+			else if (m==0){  a=2.7784; b=-7.97084; c1=0.0; d=0.80;}
+
 			else if (m==1){  a=2.543; b=-4.77; c1=0.0; d=0.848; }
 
 			beta=(c1*log(total_length)) + d;
                         neff=(a*log(total_length)) + b;
 		        sarg=(log(2.0)*total_length*jsd);
-                        sx=gammp(dof/2,sarg);	
+                        sx=gammp(dof/2,sarg);
 			smax=sx;
-							
+
 			//printf("%lf %lf %lf %d %d %.12lf %.18lf\n",total_length,p1length,p2length2,switcarray[is],switcarray[q], jsd,smax);
 
 			//cluster if divergence is not significant
-			if (smax<thres3){ 
-      
+			if (smax<thres3){
+
 				//printf("cluster %lf with %lf\n", p1length,p2length2);
 				clustera[clacounter]=is; clusterb[clacounter]=q;
 				clacounter+=1;
@@ -580,11 +580,11 @@ for(is=1;is<fgs;is++){//foreach segment-cluster
 				secondsegstart=v;
 				if(switc1==1){
 					p1length=(double)((cluslen[is]+cluslen[q])/(switcarray[q]+switcarray[is]));
-								
-					tempcluslenis=cluslen[is];						
+
+					tempcluslenis=cluslen[is];
 					new1p1l=(cluslen[is])+cluslen[q];
 					cluslen[is]=(cluslen[is])+cluslen[q];
-							
+
 					for(k=1;k<allkmer1;k++){
 						temppart1freq[k]=part1[k];
 						numerator=(double)((part1[k]*(switcarray[is]))+(part2[k]*(switcarray[q])));
@@ -592,25 +592,25 @@ for(is=1;is<fgs;is++){//foreach segment-cluster
 						temp1freq[k]=(double)((part1[k]*(switcarray[is]))+(part2[k]*(switcarray[q])));
 						part1[k]=numerator/denominator;
 						nume[k]=numerator/denominator;
-								
+
 								}
 					tempswitcarrayis=switcarray[is];
 					switcarray[is]=switcarray[is]+switcarray[q];
 
 						}
 				else{
-							
+
 					p1length=(double)(cluslen[is]+cluslen[q])/(switcarray[q]+switcarray[is]);
 					new1p1l=cluslen[is]+cluslen[q];
 					cluslen[is]=cluslen[is]+cluslen[q];
-							
+
 						if(switc2==1){
-								
+
 							for(k=1;k<allkmer1;k++){
 								temp1freq[k]=(double)(part1[k]*switcarray[is]);
 										}
 							     }
-								
+
 						for(k=1;k<allkmer1;k++){
 							temppart1freq[k]=part1[k];
 							part1[k]=(double)(temp1freq[k]+(part2[k]*(switcarray[q])))/(switcarray[q]+switcarray[is]);
@@ -621,19 +621,19 @@ for(is=1;is<fgs;is++){//foreach segment-cluster
 						switc2=0;
 					}//else ends
 
-				alonecluster+=1;		
+				alonecluster+=1;
 				clusterdone[q]=q;clusterdone1[q]=q;
 				cd+=1;
 				bbb+=1; aaa+=1;
 				secondsegmentcounter=is+1;
 
 				if(firstsegmentcounter>1){
-							
+
 					switc2=1;
 					switc2secondsegmentcounter=is;
 					j=(is*all_kmer)-all_kmer+1;
-					clusterdone[q]=q; 
-					clusterdone1[q]=q;	
+					clusterdone[q]=q;
+					clusterdone1[q]=q;
 					tempclus1[tmpcl1]=is;
 					tmpcl1+=1;
 
@@ -649,35 +649,35 @@ for(is=1;is<fgs;is++){//foreach segment-cluster
 					p2length2=(double)(cluslen[is]+cluslen[q])/(switcarray[is]+switcarray[q]);
 
 					for(k=1;k<allkmer1;k++){
-								
+
 						part2[k]=part1[k];
 								}
 
 					tempis=is;
 					firstsegmentcounter=1; is=1;
 					p1length=(double)(cluslen[is]/switcarray[is]);
-								
+
 					for(k=1;k<allkmer1;k++){
 						part1[k]=hash1[k];//part1[k]=(dene[k]);
 								}
 							        }// if firstsegmentcounter close
 				q=1;
-							
+
 	    				}//if cluster close
 
 			//If segments do not merge in same cluster
 			else{
-									
+
 				switc1=0;
 				clusterdone[is]=0;
-								
+
 				if(switc2==1){
-								
+
 					secondsegstart=1;
-					clusterdone[q]=0;	
+					clusterdone[q]=0;
 					j=(switc2secondsegmentcounter*all_kmer)-all_kmer+1;
-								
-					if(tempis==1){	
+
+					if(tempis==1){
 						for(i=1;i<tmpcl1;i++){
 							if(tempclus1[i]>q){
 								cdremove=tempclus1[i];
@@ -693,9 +693,9 @@ for(is=1;is<fgs;is++){//foreach segment-cluster
 						     }
 
 					else{q=1; switc3=0;}
-							
-						}		
-				switc2=0;			
+
+						}
+				switc2=0;
 			    }
 			 }
 	}//for second segment close
@@ -722,7 +722,7 @@ for(is=1;is<fgs;is++){//foreach segment-cluster
 for(i=1; i<clacounter;i++){
 	for(j=1; j<clacounter;j++){
 		if(clustera[i]==clusterb[j]){
-			
+
 			clustera[i]=clustera[j];
 					   }
 				   }
@@ -745,11 +745,11 @@ for(i=1; i<clacounter;i++){
 pos1=1;
 
 for(i=1; i<clacounter;i++){
-	
+
 	if(clustera[i]<clustera[i+1]){
-			
+
 			for(j=pos1;j<i+1;j++){
-				
+
 				newclusterb[nwclb]=clusterb[j];
 				clusterid[cid]=cid1;
                                 cid+=1;
@@ -760,7 +760,7 @@ for(i=1; i<clacounter;i++){
 				clusterid[cid]=cid1;
 				cid1+=1;cid+=1;
 				nwclb+=1;pos1=i+1;
-				
+
 		}
 }
 
@@ -770,7 +770,7 @@ for(i=pos1;i<clacounter;i++){
 	clusterid[cid]=cid1;
 	cid+=1;
 			    }
-		
+
 newclusterb[nwclb]=clustera[clacounter-1];
 clusterid[cid]=cid1;
 cid+=1;cid1+=1;
@@ -810,13 +810,13 @@ for (i=1; i<fgs;i++){
 		    }
 
 //Print segments with cluster ids
-FILE *output4;   
-output4 = fopen("cafe_temp", "w"); 
+FILE *output4;
+output4 = fopen("cafe_temp", "w");
 
 for(i=1;i<fgs;i++){
-		
-		fprintf(output4,"%d\t%d\t%d\n",final_groups_start[i], final_groups_end[i],clusterid1[i] ); 
-		} 
+
+		fprintf(output4,"%d\t%d\t%d\n",final_groups_start[i], final_groups_end[i],clusterid1[i] );
+		}
 
 /********************************************************************************************clusterid ends*********************************************************************************************/
 //fclose(output1);
@@ -849,7 +849,7 @@ return 0;
 
 int segmentation (int *hash,int parent_start, int parent_end){
 //printf ("Thresholds are %.15lf %.15lf %.15lf\n", thres, thres1, thres3);
-int i=0,j=0,k,q,count=0, count1=0, length,  p2length,  seg_coord=0, seg_coord1, s1_start,  s1_end, s2start,s2end,   p1length=0, inter,  newparentstart,newparentend, k2, pae2,pas2,length1,temp; 
+  int i=0,j=0,k,q,count=0, count1=0, FIRST=1, length,  p2length,  seg_coord=0, seg_coord1, s1_start,  s1_end, s2start,s2end,   p1length=0, inter,  newparentstart,newparentend, pae2,pas2,length1;
 double ent, ent1, ent2, pi1, pi2,  n=0, maxi=-999999999.0, invlen1;
 double a, b, c, d, beta, neff, arg, sx, smax, sarg;
 double distance1;
@@ -857,6 +857,7 @@ double distance1;
 int *freq=malloc(256*sizeof(int));
 int *freq1=malloc(256*sizeof(int));
 int *freq2=malloc(256*sizeof(int));
+
 //Initialize frequency arrays
 
 for(i=1;i<allkmer1;i++){
@@ -870,7 +871,7 @@ inter=length/10000;
 
 if(inter<1){inter=1;}
 
-newparentstart=parent_start+mmk; 
+newparentstart=parent_start+mmk;
 newparentend=parent_end-mmk;
 pas2=parent_start+1;
 pae2=parent_end-2;
@@ -880,23 +881,49 @@ p2length=length-p1length-4;
 length1=p1length+p2length;
 invlen1=(double)1/(length1);
 
-for(k=newparentstart;k<newparentend;k+=inter){
+ for(k=newparentstart;k<newparentend;k+=inter){
+   /* printf("%i\t%i\n", k, inter); */
+  if (FIRST==1){
+    FIRST=0; // only do this once per recursion
+	//Count initailize all 64 values to 0
 	for(i=1;i<allkmer1;i++){
 		freq[i]=0;freq1[i]=0;
 			       }
-	//Count frequencies of trinucloetides
+	//Count frequencies of trinucloetides in segment from start of sequence (at least in first recursion)
+	// up to the start of the sliding window
 	for(j=parent_start;j<k-2;j++){
-               	temp=hash[j];
-                hash[j]=temp;freq[temp]++;							
-				     } 
-	k2=k+1;
-	for(q=k2;q<pae2;q++){
-		temp=hash[q];freq1[temp]++;
+               	/* temp=hash[j]; */
+                /* hash[j]=temp; */
+		freq[hash[j]]++;
+				     }
+	//Count frequencies of trinucloetides in rest of genome from start of window to end of sequence
+	/* k2=k+1; */
+	for(q=(k+1);q<pae2;q++){
+		/* temp=hash[q]; */
+		freq1[hash[q]]++;
 		            }
+  }else{
+    // adjust the frequency counts for the segment
+    // instead of remaking the whoe trinucleotide count array, we just add in the new ones
+    // in increments of "inter" as it always starts in the same spot (parent_start)
+
+    for(j=(k-2);j<(k-2+inter);j++){
+      freq[hash[j]]++;
+    }
+    // adjust the frequencies of the non-segment
+    // and add the one we found as we move through the sequence
+    // (for the segment, not the remaining sequence, as that always ends at pae2)
+    for(q=(k+1-inter);q<(k+1);q++){
+      freq1[hash[q]]--;
+    }
+    /* exit(1); */
+  }
 
 	for(i=1;i<allkmer1;i++){
 		freq2[i]=freq[i]+freq1[i];
+		/* printf("%i\t%i\t%i\t%i\t%i\n",k, i, freq[i], freq1[i], freq1[i] ); */
 			       }
+	/* if (k>257){exit(1);} */
 	//Calculate entropy
 	ent=-((entropy1(freq2, length1))/(log(2.0)));
 	ent1=-((entropy1(freq,p1length))/(log(2.0)));
@@ -916,7 +943,7 @@ for(k=newparentstart;k<newparentend;k+=inter){
 		}
 
 
-					     } 
+ }
 s1_start=parent_start;
 s1_end=seg_coord;
 s2start=s1_end+1;
@@ -927,15 +954,15 @@ seg_coord1=seg_coord;
 //Parameters for Markov models
 if (m==2){  a=2.39; b=-7.66;c=0.0029; d=0.841;}
 
-else if (m==0){  a=2.7784; b=-7.97084; c=0.0; d=0.80;	}		
-                        						
+else if (m==0){  a=2.7784; b=-7.97084; c=0.0; d=0.80;	}
+
 else if (m==1){  a=2.543; b=-4.77; c=0.0; d=0.848; }
 
 //Do significance testing
 beta=(c*log(length)) + d;
 neff=(a*log(length)) + b;
 sarg=(log(2.0)*beta*length*maxi);
-sx=gammp(dof/2,sarg);	
+sx=gammp(dof/2,sarg);
 smax=pow(sx,neff);
 
 //-------------------------------------------------------if significant------------------------------------------------
@@ -961,8 +988,8 @@ else{
 	   l=l+1;
 	   segmentation(hash, s2_start[k1], s2_end[k1]);
 			     }
-	
-   }
+
+ }
 
 
 free(freq);
@@ -978,26 +1005,26 @@ double entropy2 (double *freq_kmer, double length)
 	int i=1,i1=1;
 	double ent=0.0,sumkmer=0.0, ent1=0.0,wordprob, *probkmer=malloc(256*sizeof(double));
 
-	for (i=1;i<all_kmer+1;i++) 
+	for (i=1;i<all_kmer+1;i++)
 	{
                 sumkmer=(freq_kmer[i1]+freq_kmer[i1+1]+freq_kmer[i1+2]+freq_kmer[i1+3]); //Get sum of dinucleotides (kmer-1)
-			
+
  		if (sumkmer>0)
  		{
 			probkmer[i]=(double)freq_kmer[i]/sumkmer; //Calculate probability of trinucleotides (kmers)
 
                      	if (probkmer[i]>0.0)
-				
+
 				ent1=ent1+probkmer[i]*((log (probkmer[i])));
-				
+
  		}
-                
+
 		if (i%4 ==0)
 			{
-			  
+
                            wordprob=(double)sumkmer/length; //calculate probability of dinucleotide (kmer-1)
-			   ent+=ent1*(wordprob); 
-			   
+			   ent+=ent1*(wordprob);
+
 			   ent1=0.0;
 			   i1=i1+4;
 			}
@@ -1006,7 +1033,7 @@ free(probkmer);
 	return ent;
 }
 /***********************************************************************************************entropy 1***********************************************************************************************/
-//Function to calculate entropy. Takes input as frequency array 
+//Function to calculate entropy. Takes input as frequency array
 double entropy1 (int *freq_kmer, int length)
 {
 	int i=1,i1=1,sumkmer=0;
@@ -1015,22 +1042,22 @@ double entropy1 (int *freq_kmer, int length)
 	for (i=1;i<all_kmer+1;i++)
 	{
                 sumkmer=(freq_kmer[i1]+freq_kmer[i1+1]+freq_kmer[i1+2]+freq_kmer[i1+3]);
-			
+
  		if (sumkmer>0)
  		{
 			probkmer[i]=(double)freq_kmer[i]/sumkmer;
 
                      	if (probkmer[i]>0.0)
-				
+
 				ent1=ent1+probkmer[i]*((log (probkmer[i])));
-				
+
  		}
-                
+
 		if (i%4 ==0)
 			{
 			   wordprob=(double)sumkmer/length;
-			   ent+=ent1*(wordprob); 
-			   
+			   ent+=ent1*(wordprob);
+
 			   ent1=0.0;
 			   i1=i1+4;
 			}
@@ -1140,4 +1167,3 @@ void nrerror (char error_text[])
 	printf("%s\n",error_text);
 	}
 /**********************************************************************************************program end**********************************************************************************************/
-
