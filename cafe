@@ -1,11 +1,11 @@
 #!/usr/bin/env perl
-use strict;
-use warnings;
 
 use File::Copy;
 use Bio::SeqIO;
 use List::MoreUtils qw(uniq);
 use List::Util 'max';
+
+my $sequence;
 #Defaults
 $verb=0;
 $expert=0;
@@ -74,7 +74,6 @@ $m=join("",@g);
 print OUT "$m";
 $lenm=length($m);
 print "Genome loaded\nLength of genome is $lenm bp\n" if ($verb==1);
-
 #If annotation file is provided
 
 if (!defined$annotation){
@@ -1050,11 +1049,12 @@ sub gbk {
 	open(FNA, ">", $infile . "_CAFE.fna");
 	open(FAA, ">", $infile . "_CAFE.faa");
 	my %tags = ();
+	$sequence = "";
 	$gene_no=1;
 	while (my $seq = $seqio->next_seq()) {
 
 		my $header1 = $seq->desc() || 'unknown' . " - 1.." . $seq->length();
-		$sequence=$seq->seq;
+		$sequence .= $seq->seq;
 		print FNA ">$header1 ", "\n", $sequence;
 
 		my @CDS = $seq->get_SeqFeatures('CDS');
