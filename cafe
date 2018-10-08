@@ -1048,15 +1048,23 @@ sub gbk {
 	open(my $PTT, ">", $infile . "_CAFE.ptt");
 	open(FNA, ">", $infile . "_CAFE.fna");
 	open(FAA, ">", $infile . "_CAFE.faa");
+	open(COORDS, ">", $infile . "_CAFE.coords");
 	my %tags = ();
+	my $abs_start = 1;
+	my $abs_end = 0;
 	$sequence = "";
 	$gene_no=1;
 	while (my $seq = $seqio->next_seq()) {
 
-		my $header1 = $seq->desc() || 'unknown' . " - 1.." . $seq->length();
-		$sequence .= $seq->seq;
-		print FNA ">$header1 ", "\n", $sequence;
-
+	        my $header1 = $seq->desc() || 'unknown' . " - 1.." . $seq->length();
+	        my $header_id = $seq->id;
+		my $this_sequence .= $seq->seq;
+		my $this_sequence_len .= length( $this_sequence );
+		$abs_end += $this_sequence_len + 1;
+		$sequence .= $this_sequence;
+		print FNA ">$header1 ", "\n", $this_sequence;
+		print COORDS "$header_id\t$this_sequence_len\t$abs_start\t$abs_end", "\n";
+		$abs_start += $this_sequence_len + 1;
 		my @CDS = $seq->get_SeqFeatures('CDS');
 		my $featcnt = 0;
 
