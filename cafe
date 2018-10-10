@@ -19,15 +19,14 @@ if (defined $outfile){
 	$name=$output;
 }
 
+
 #If input file in Genbank format
 if (defined($gbk)) {
 	$dna=$sequence;
 	$name=$infile if(!defined$outfile);
 	$in_filename="$name\_CAFE.fna";
-}
-
-#If input file in Fasta format
-else {
+} else {
+        #If input file in Fasta format
 
 	if (scalar(@ARGV)<1){
 	print "Sequence file not provided\n";
@@ -69,7 +68,8 @@ foreach(@g){
 	$s=$nucs[rand@nucs];
 	$_=~s/[^ATCG]/$s/g;
 }
-open (OUT, ">$name\_CAFE_1");
+print("$name\_CAFE\_1\n");
+open (OUT, ">$name\_CAFE\_1");
 $m=join("",@g);
 print OUT "$m";
 $lenm=length($m);
@@ -393,7 +393,7 @@ else {
 
 	system("./seg_clus $name\_CAFE_1 0.8 0.99999 0.999 $verb");
 }
-
+die();
 #Parse segment and clustering output file. Combine contiguous segments with same cluster id.
 
 $sc_out='cafe_temp'; #seg-clus output file
@@ -853,6 +853,12 @@ for ($i=0; $i< $ncondcounter; $i++){
 if($nul==0){
 	print "No Genomic islands detected\n";
 }
+# make version without header
+system("tail -n+2 " . $name . "_CAFE.txt > " . $name . "_CAFE_nh.txt");
+system(
+    'while read contig length start end; do while read gi gi_start gi_end gi_len; do if [ "$start" -le "$gi_start" -a "$end" -ge "$gi_end" ] ; then echo -e "$contig\t$gi\t$gi_start\t$gi_end" > ' . $name . "\_CAFE\_matched.txt" . '; fi ; done < '. $infile . '_CAFE.coords' .'  ; done < ' . $name . '_CAFE_nh.txt'
+    );
+
 
 #######################################################################################################################################################
 
@@ -1050,21 +1056,22 @@ sub gbk {
 	open(FAA, ">", $infile . "_CAFE.faa");
 	open(COORDS, ">", $infile . "_CAFE.coords");
 	my %tags = ();
-	my $abs_start = 1;
+	my $abs_start = 1001;
 	my $abs_end = 0;
 	$sequence = "";
 	$gene_no=1;
+
 	while (my $seq = $seqio->next_seq()) {
 
 	        my $header1 = $seq->desc() || 'unknown' . " - 1.." . $seq->length();
 	        my $header_id = $seq->id;
-		my $this_sequence .= $seq->seq;
+		my $this_sequence .= "N"*1000 . $seq->seq;
 		my $this_sequence_len .= length( $this_sequence );
-		$abs_end += $this_sequence_len + 1;
+		$abs_end += $this_sequence_len + 1001;
 		$sequence .= $this_sequence;
 		print FNA ">$header1 ", "\n", $this_sequence;
 		print COORDS "$header_id\t$this_sequence_len\t$abs_start\t$abs_end", "\n";
-		$abs_start += $this_sequence_len + 1;
+		$abs_start += $this_sequence_len + 1001;
 		my @CDS = $seq->get_SeqFeatures('CDS');
 		my $featcnt = 0;
 

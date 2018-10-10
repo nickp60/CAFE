@@ -78,7 +78,7 @@ for(i=0; i<length-nm;i++){
 sum = 0;
 	strncpy(dna, string+i,nm);
 	for(j=0;j<nm;j++){
-		num=pow(10, n);
+		/* num=pow(10, n); */
                 if (dna[j]=='A'){id=0;}
 	        else if (dna[j]=='T'){id=1;}
 	        else if (dna[j]=='C'){id=2;}
@@ -93,7 +93,6 @@ count_of_hash+=1;
 strlength+=2;
 if (verb==1) {printf("\nStarting segmentation...\nThis may take some time\n");}
 //printf("\nstrlength is %d\n", strlength);
-
 //Start segmentation
 if (verb==1) {printf ("Segment_start\tSegment_end\tDivergence\n");}
 segmentation(hash,1,strlength);
@@ -852,7 +851,7 @@ int segmentation (int *hash,int parent_start, int parent_end){
   int i=0,j=0,k,q,count=0, count1=0, FIRST=1, length,  p2length,  seg_coord=0, seg_coord1, s1_start,  s1_end, s2start,s2end,   p1length=0, inter,  newparentstart,newparentend, pae2,pas2,length1;
 double ent, ent1, ent2, pi1, pi2,  n=0, maxi=-999999999.0, invlen1;
 double a, b, c, d, beta, neff, arg, sx, smax, sarg;
-double distance1;
+double distance1 = 0.0;
 
 int *freq=malloc(256*sizeof(int));
 int *freq1=malloc(256*sizeof(int));
@@ -869,7 +868,7 @@ for(i=1;i<allkmer1;i++){
 length= parent_end-parent_start+1;
 inter=length/10000;
 
-if(inter<1){inter=1;}
+if(inter<1){inter=1; }
 
 newparentstart=parent_start+mmk;
 newparentend=parent_end-mmk;
@@ -880,8 +879,19 @@ p1length=newparentstart-pas2;
 p2length=length-p1length-4;
 length1=p1length+p2length;
 invlen1=(double)1/(length1);
+ printf("mkk: %d  \n ", mmk);
 
- for(k=newparentstart;k<newparentend;k+=inter){
+ if (parent_start > parent_end){
+   printf("parent_Start: %d  parent_end: %d \n", parent_start, parent_end);
+   exit(1);
+ }
+ if (newparentstart > newparentend){
+   printf("newparent_Start: %d  newparent_end: %d \n", newparentstart, newparentend);
+   exit(1);
+ }
+
+
+for(k=newparentstart;k<newparentend;k+=inter){
    /* printf("%i\t%i\n", k, inter); */
   if (FIRST==1){
     FIRST=0; // only do this once per recursion
@@ -932,18 +942,25 @@ invlen1=(double)1/(length1);
 	pi2=1-pi1;
 	//Calculate divergence between the segments
 	distance1=ent-(pi1*ent1)-(pi2*ent2);
+	/* printf("%.6f\n", distance1); */
 
 	p1length+=inter;
 	p2length-=inter;
+
 	//Get position of maximum divergence
 	if(maxi<distance1)
 		{
 		maxi=distance1;
 		seg_coord=k;
+		/* printf("postmaxi %.6f\n", distance1); */
 		}
 
 
  }
+ if (-999999999.0 == maxi){
+   printf("ent: %f  ent1: %f ent2: %f length: %d  inter: %d k: %d newparent: %d newparentend %d\n", ent, ent1, ent2, inter,  length, k, newparentstart, newparentend);
+     exit(1);
+     }
 s1_start=parent_start;
 s1_end=seg_coord;
 s2start=s1_end+1;
@@ -967,7 +984,8 @@ smax=pow(sx,neff);
 
 //-------------------------------------------------------if significant------------------------------------------------
 //Continue segmentation
-if(smax>thres)
+// the second term checks to make sure that the segment is long enough continue processing
+if(smax>thres && (s1_end - mmk - s1_start - mmk) > 0)
 	{
 	s2_start[s2j]=s2start;
 	s2_end[s2j]=s2end;
@@ -981,7 +999,10 @@ else{
 
 	final_s1_start [sg1]=parent_start;
 	final_s1_end [sg1]=parent_end;
-	if (verb==1) {printf ("%d\t%d\t%.12lf\n", parent_start, parent_end, distance1);}
+	/* printf("prewrite %.6f\n", distance1); */
+	/* printf("premaxi %.6f\n", maxi); */
+
+	if (verb==1) {printf ("%d\t%d\t%.12f\n", parent_start, parent_end, distance1);}
 	sg1=sg1+1;
 	//Get next segment for segmentation
 	for(k1=l;k1<s2j;k1++){
