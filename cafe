@@ -393,7 +393,6 @@ else {
 
 	system("./seg_clus $name\_CAFE_1 0.8 0.99999 0.999 $verb");
 }
-die();
 #Parse segment and clustering output file. Combine contiguous segments with same cluster id.
 
 $sc_out='cafe_temp'; #seg-clus output file
@@ -855,8 +854,11 @@ if($nul==0){
 }
 # make version without header
 system("tail -n+2 " . $name . "_CAFE.txt > " . $name . "_CAFE_nh.txt");
+# This is a hacky way of generating a file that reports the GIs with the sequence ID]
+# for better or worse, this drops sequences extending past contig breaks (into the
+# equally distributed nucleotides that replaced the N's)
 system(
-    'while read contig length start end; do while read gi gi_start gi_end gi_len; do if [ "$start" -le "$gi_start" -a "$end" -ge "$gi_end" ] ; then echo -e "$contig\t$gi\t$gi_start\t$gi_end" > ' . $name . "\_CAFE\_matched.txt" . '; fi ; done < '. $infile . '_CAFE.coords' .'  ; done < ' . $name . '_CAFE_nh.txt'
+    'while read contig length start end; do while read gi gi_start gi_end gi_len; do if [ "$start" -le "$gi_start" -a "$end" -ge "$gi_end" ] ; then printf "$contig\t$gi\t$gi_start\t$gi_end\n" >> ' . $name . "\_CAFE\_matched.txt" . '; fi ; done < ' . $name . '_CAFE_nh.txt' . '  ; done < ' . $infile . '_CAFE.coords'
     );
 
 

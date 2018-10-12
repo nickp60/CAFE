@@ -879,16 +879,14 @@ p1length=newparentstart-pas2;
 p2length=length-p1length-4;
 length1=p1length+p2length;
 invlen1=(double)1/(length1);
- printf("mkk: %d  \n ", mmk);
 
- if (parent_start > parent_end){
-   printf("parent_Start: %d  parent_end: %d \n", parent_start, parent_end);
-   exit(1);
- }
- if (newparentstart > newparentend){
-   printf("newparent_Start: %d  newparent_end: %d \n", newparentstart, newparentend);
-   exit(1);
- }
+// here we could check for invalid parent boundaries, but with the conditional call to keep segmenting
+// based on the parent coordinates, this is no longer needed
+
+ /* if (newparentstart > newparentend){ */
+ /*   printf("newparent_Start: %d  newparent_end: %d \n", newparentstart, newparentend); */
+ /*   exit(1); */
+ /* } */
 
 
 for(k=newparentstart;k<newparentend;k+=inter){
@@ -957,10 +955,11 @@ for(k=newparentstart;k<newparentend;k+=inter){
 
 
  }
- if (-999999999.0 == maxi){
-   printf("ent: %f  ent1: %f ent2: %f length: %d  inter: %d k: %d newparent: %d newparentend %d\n", ent, ent1, ent2, inter,  length, k, newparentstart, newparentend);
-     exit(1);
-     }
+ /* if (-999999999.0 == maxi){ */
+ /*   // this makes sure we dont have the previous issue of undefined maxi */
+ /*   printf("ent: %f  ent1: %f ent2: %f length: %d  inter: %d k: %d newparent: %d newparentend %d\n", ent, ent1, ent2, inter,  length, k, newparentstart, newparentend); */
+ /*     exit(1); */
+ /*     } */
 s1_start=parent_start;
 s1_end=seg_coord;
 s2start=s1_end+1;
