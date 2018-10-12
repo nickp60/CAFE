@@ -858,7 +858,7 @@ system("tail -n+2 " . $name . "_CAFE.txt > " . $name . "_CAFE_nh.txt");
 # for better or worse, this drops sequences extending past contig breaks (into the
 # equally distributed nucleotides that replaced the N's)
 system(
-    'while read contig length start end; do while read gi gi_start gi_end gi_len; do if [ "$start" -le "$gi_start" -a "$end" -ge "$gi_end" ] ; then printf "$contig\t$gi\t$gi_start\t$gi_end\n" >> ' . $name . "\_CAFE\_matched.txt" . '; fi ; done < ' . $name . '_CAFE_nh.txt' . '  ; done < ' . $infile . '_CAFE.coords'
+    'while read contig length start end; do while read gi gi_start gi_end gi_len; do if [ "$start" -le "$gi_start" -a "$end" -ge "$gi_end" ] ; then printf "$contig\t$gi\t$((gi_start-start))\t$((gi_end-start))\n" >> ' . $name . "\_CAFE\_matched.txt" . '; fi ; done < ' . $name . '_CAFE_nh.txt' . '  ; done < ' . $infile . '_CAFE.coords'
     );
 
 
@@ -1067,7 +1067,7 @@ sub gbk {
 
 	        my $header1 = $seq->desc() || 'unknown' . " - 1.." . $seq->length();
 	        my $header_id = $seq->id;
-		my $this_sequence .= "N"*1000 . $seq->seq;
+		my $this_sequence .= "N" x 1000 . $seq->seq;
 		my $this_sequence_len .= length( $this_sequence );
 		$abs_end += $this_sequence_len + 1001;
 		$sequence .= $this_sequence;
